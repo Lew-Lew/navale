@@ -1,12 +1,16 @@
 <template>
   <div class="home">
 
+    <p v-show="isWin()">You Win!</p>
+    <button v-on:click="board = initBoard()">start</button>
+    <p>counter: {{counter}}</p>
+    {{win}}
     <table>
       <tbody>
         <tr v-for="b in board" v-bind:key="b">
           <td v-for="c in b" v-bind:key="c">
             <!-- au click tentative devient true pour afficher ce qu'il y a dans la case -->
-            <div v-on:click="c.tentative = true">
+            <div v-on:click="round(c)">
               <!-- si tentative est true alors on affiche -->
               <div v-if="c.tentative == true">
                 <!-- si il y avait un bateau alors on affiche le bateau -->
@@ -38,14 +42,17 @@ export default {
   data: function () {
     return {
       board: this.initBoard(),
+      counter: 0,
+      win: 0,
     };
   },
 
   methods: {
 
-    initBoard: function(){
-
+    initBoard() {
       // création de la grille de jeu
+      this.counter = 0
+      this.win = 0
       let res = []
       for (let index = 0; index < 10; index++) {
         let array = []
@@ -58,21 +65,21 @@ export default {
       // création d'un bateau de 2 cases placement random
       let randomRow = Math.floor(Math.random() * 9-1) + 1
       let randomColumn = Math.floor(Math.random() * 9-1) + 1
-      // res[randomRow][randomColumn].tentative = true
+      res[randomRow][randomColumn].tentative = true
       res[randomRow][randomColumn].boat = true
       let cel2 = Math.floor(Math.random() * 2)
       if (cel2 === 0) {
-        // res[randomRow][randomColumn + 1].tentative = true
+        res[randomRow][randomColumn + 1].tentative = true
         res[randomRow][randomColumn + 1].boat = true
       } else  {
-        // res[randomRow + 1][randomColumn].tentative = true
+        res[randomRow + 1][randomColumn].tentative = true
         res[randomRow + 1][randomColumn].boat = true
       }
 
       // création d'un bateau de 3 cases placement random
       // reste à gérer le cas pour être sûr que les bateaux ne tombent pas sur la même case
-      let rowCel1Boat3 = Math.floor(Math.random() * 9-1) + 1
-      let columnCel1Boat3 = Math.floor(Math.random() * 9-1) + 1
+      let rowCel1Boat3 = Math.floor(Math.random() * 9-2) + 2
+      let columnCel1Boat3 = Math.floor(Math.random() * 9-2) + 2
       let cel1Boat3 = res[rowCel1Boat3][columnCel1Boat3]
       // cel1Boat3.tentative = true
       cel1Boat3.boat = true
@@ -96,6 +103,29 @@ export default {
       }
       return res
     },
+
+    isWin() {
+      // for (const row of this.board) {
+      //   for (const cell of row) {
+      //     if (cell.boat && !cell.tentative) {
+      //       return false
+      //     }
+      //   }
+      // }
+      // return true
+      return this.win === 5
+    },
+
+    round(cell) {
+      if (cell.tentative) {
+        return
+      }
+      this.counter += 1
+      if (cell.boat && !cell.tentative) {
+        this.win += 1
+      }
+      cell.tentative = true
+    }
 
   }
 };
